@@ -1,0 +1,553 @@
+swagger: "2.0"
+info:
+  description: This is the swagger file that goes with our server code
+  version: "1.0.0"
+  title: Swagger Metadata REST
+consumes:
+  - "application/json"
+produces:
+  - "application/json"
+
+basePath: "/api"
+
+# Paths supported by the server application
+paths:
+
+  ####################
+  ### TRANSACTIONS ###
+  ####################
+
+  # Open a new transaction
+  /transaction:
+    post:
+      operationId: "transaction.create"
+      tags:
+        - "Transaction"
+      summary: "Open a transaction"
+      description: "Open a new transaction and return the ID"
+
+      responses:
+        200:
+          description: "Successfully created transaction"
+          schema:
+            properties:
+              transaction_id:
+                type: "string"
+                description: "id of the transaction"
+
+  # Rollback an open transaction
+  /transaction/{trans_id}:
+    delete:
+      operationId: "transaction.rollback"
+      tags:
+        - "Transaction"
+      summary: "Rollback transaction"
+      description: "Rollback transaction with given id"
+      parameters:
+        - name: "trans_id"
+          in: "path"
+          description: "transaction id"
+          required: True
+          type: "string"
+          format: "path"
+
+      responses:
+        204:
+          description: "Successfully rollback transaction"
+        422:
+          description: "Transaction not found"
+
+  # Commit an open transaction
+  /transaction/commit/{trans_id}:
+    post:
+      operationId: "transaction.commit"
+      tags:
+        - "Transaction"
+      summary: "Commit transaction"
+      description: "Commit transaction with given id"
+      parameters:
+        - name: "trans_id"
+          in: "path"
+          description: "transaction id"
+          required: True
+          type: "string"
+
+      responses:
+        204:
+          description: "Successfully committed transaction"
+        422:
+          description: "Transaction not found"
+
+  #############
+  ### NODES ###
+  #############
+
+  # Get node by name
+  /node/name/{name}:
+    get:
+      operationId: "node.get_node_by_name"
+      tags:
+        - "Node"
+      summary: "Get nodes with given name"
+      description: "Get nodes with given name"
+      parameters:
+        - name: "name"
+          in: "path"
+          description: "Searched name"
+          required: True
+          type: "string"
+
+      responses:
+        200:
+          description: "Successful read nodes list"
+          schema:
+            type: "array"
+            items:
+              properties:
+                label:
+                  type: "string"
+                  description: "Label of the node"
+                properties:
+                  type: "object"
+                  description: "Properties of the node"
+
+  # Get node by id
+  /node/id/{node_id}:
+    get:
+      operationId: "node.get_node_by_id"
+      tags:
+        - "Node"
+      summary: "Get node with given node_id"
+      description: "Get node with given node_id"
+      parameters:
+        - name: "node_id"
+          in: "path"
+          description: "Searched node_id"
+          required: True
+          type: "string"
+
+      responses:
+        200:
+          description: "Successful read node with given id"
+          schema:
+            type: "object"
+            properties:
+              label:
+                type: "string"
+                description: "Label of the node"
+              properties:
+                type: "object"
+                description: "Properties of the node"
+
+  # Insert node
+  /node:
+    post:
+      operationId: "node.create_node"
+      tags:
+        - "Node"
+      summary: "Create a node"
+      description: "Create a new node"
+      parameters:
+        - name: "node"
+          in: "body"
+          description: "Node to create"
+          schema:
+            type: "object"
+            properties:
+              label:
+                type: "string"
+                description: "Label of the node"
+              properties:
+                type: "object"
+                description: "Properties of the node"
+
+      responses:
+        200:
+          description: "Successfully created node"
+          schema:
+            type: "object"
+            properties:
+              node_id:
+                type: "string"
+                description: "Id of the created node"
+
+  # Insert node in transaction
+  /node/{trans_id}:
+    post:
+      operationId: "node.create_node_in_transaction"
+      tags:
+        - "Node"
+      summary: "Create a node"
+      description: "Create a new node"
+      parameters:
+        - name: "trans_id"
+          in: "path"
+          description: "transaction id"
+          required: True
+          type: "string"
+        - name: "node"
+          in: "body"
+          description: "Node to create"
+          schema:
+            type: "object"
+            properties:
+              label:
+                type: "string"
+                description: "Label of the node"
+              properties:
+                type: "object"
+                description: "Properties of the node"
+
+      responses:
+        200:
+          description: "Successfully created node in given transaction"
+          schema:
+            type: "object"
+            properties:
+              node_id:
+                type: "string"
+                description: "Id of the created node"
+
+  #####################
+  ### RELATIONSHIPS ###
+  #####################
+
+  # Get relationship by id
+  /relationship/id/{rel_id}:
+    get:
+      operationId: "relationship.get_relationship_by_id"
+      tags:
+        - "Relationship"
+      summary: "Get relationship with given relationship_id"
+      description: "Get relationship with given relationship_id"
+      parameters:
+        - name: "rel_id"
+          in: "path"
+          description: "relationship id"
+          required: True
+          type: "string"
+
+      responses:
+        200:
+          description: "Successful read relationship with given id"
+          schema:
+            type: "object"
+            properties:
+              label:
+                type: "string"
+                description: "Label of the relationship"
+              start_node_id:
+                type: "string"
+                description: "Id of the start node"
+              end_node_id:
+                type: "string"
+                description: "Id of the end node"
+              properties:
+                type: "object"
+                description: "Properties of the relationship"
+
+  # Insert relationship
+  /relationship:
+    post:
+      operationId: "relationship.create_relationship"
+      tags:
+        - "Relationship"
+      summary: "Create a relationship"
+      description: "Create a new relationship between two nodes"
+      parameters:
+        - name: "relationship"
+          in: "body"
+          description: "Relationship to create"
+          schema:
+            type: "object"
+            properties:
+              label:
+                type: "string"
+                description: "Label of the relationship"
+              start_node_id:
+                type: "string"
+                description: "Id of the start node"
+              end_node_id:
+                type: "string"
+                description: "Id of the end node"
+              properties:
+                type: "object"
+                description: "Properties of the relationship"
+
+      responses:
+        200:
+          description: "Successfully created relationship"
+          schema:
+            type: "object"
+            properties:
+              relationship_id:
+                type: "string"
+                description: "Id of the created relationship"
+
+  # Insert relationship in transaction
+  /relationship/{trans_id}:
+    post:
+      operationId: "relationship.create_relationship_in_transaction"
+      tags:
+        - "Relationship"
+      summary: "Create a relationship"
+      description: "Create a new relationship between two nodes"
+      parameters:
+        - name: "trans_id"
+          in: "path"
+          description: "transaction id"
+          required: True
+          type: "string"
+        - name: "relationship"
+          in: "body"
+          description: "Relationship to create"
+          schema:
+            type: "object"
+            properties:
+              label:
+                type: "string"
+                description: "Label of the relationship"
+              start_node_id:
+                type: "string"
+                description: "Id of the start node"
+              end_node_id:
+                type: "string"
+                description: "Id of the end node"
+              properties:
+                type: "object"
+                description: "Properties of the relationship"
+
+      responses:
+        200:
+          description: "Successfully created relationship"
+          schema:
+            type: "object"
+            properties:
+              relationship_id:
+                type: "string"
+                description: "Id of the created relationship"
+
+  ##############
+  ### SEARCH ###
+  ##############
+
+  # Search
+  /search:
+    post:
+      operationId: "search.search"
+      tags:
+        - "Search"
+      summary: "Search metadata applying filters"
+      description: "Search metadata applying filters. Allowed search_filter content: {\"data_lake_area\": \"landing\"} or {\"data_lake_area\": \"harbour\"}"
+      parameters:
+        - name: "search_filter"
+          in: "body"
+          description: "Filters to apply in search"
+          schema:
+            type: "object"
+
+      responses:
+        200:
+          description: "Successfully created relationship"
+          schema:
+            type: "object"
+
+  ##################
+  ### PROVENANCE ###
+  ##################
+
+  # Get provenance graph originating from node_id
+  /prov/forward/{node_id}/{step}:
+    post:
+      operationId: "provenance.forward_provenance"
+      tags:
+        - "Provenance"
+      summary: "Get forward provenance graph"
+      description: "Get provenance graph originating from node_id in step expansion.
+      Allowed values:
+      node_id = 42b3f38e-604c-4590-b0ff-1360bef12f66,
+      step > 0"
+      parameters:
+        - name: "node_id"
+          in: "path"
+          description: "node id"
+          required: True
+          type: "string"
+        - name: "step"
+          in: "path"
+          description: "Number of relationship to navigate forward"
+          required: True
+          type: "integer"
+
+      responses:
+        200:
+          description: "Successfully retrieved forward provenance graph"
+          schema:
+            type: "object"
+
+  # Get provenance graph leading to node_id
+  /prov/backward/{node_id}/{step}:
+    post:
+      operationId: "provenance.backward_provenance"
+      tags:
+        - "Provenance"
+      summary: "Get backward provenance graph"
+      description: "Get provenance graph leading to node_id in step expansion"
+      parameters:
+        - name: "node_id"
+          in: "path"
+          description: "node id"
+          required: True
+          type: "string"
+        - name: "step"
+          in: "path"
+          description: "Number of relationship to navigate backward"
+          required: True
+          type: "integer"
+
+      responses:
+        200:
+          description: "Successfully retrieved backward provenance graph"
+          schema:
+            type: "object"
+
+  #####################
+  ### ORCHESTRATION ###
+  #####################
+
+  /orchestration/operation_type/{node_id}:
+    get:
+      operationId: "orchestration.more_frequently_operation_type"
+      tags:
+        - "Orchestration"
+      summary: "Return the OperationType more frequently used on objects of the same type of the given ID"
+      description: "Return the OperationType more frequently used on objects of the same type of the given ID"
+      parameters:
+        - name: "node_id"
+          in: "path"
+          description: "node id"
+          required: True
+          type: "string"
+
+      responses:
+        200:
+          description: "Successfully retrieved OperationType more frequently used on objects of the same type of the given ID"
+          schema:
+            type: "object"
+
+  ################
+  ### METADATA ###
+  ################
+
+  /metadata/object:
+    post:
+      operationId: "metadata.object"
+      tags:
+        - "Metadata"
+      summary: "Create the portion of graph referred to the object region"
+      description: "Create the portion of graph referred to the object region"
+      parameters:
+        - name: "metadata"
+          in: "body"
+          required: true
+          description: "Portion of graph referred to the object region"
+          schema:
+            type: "object"
+            properties:
+              object:
+                type: "object"
+                description: "Object for which metadata was extracted"
+              object_type:
+                type: "object"
+                description: "ObjectType and its properties"
+              data_lake_area:
+                type: "string"
+                description: "Name of the DataLakeArea to which the Object belongs"
+              project:
+                type: "string"
+                description: "Name of the Project to which the Object belongs"
+
+      responses:
+        204:
+          description: "Successfully created metadata referred to the object region"
+
+  /metadata/schema:
+    post:
+      operationId: "metadata.schema"
+      tags:
+        - "Metadata"
+      summary: "Create the portion of graph referred to the schema region"
+      description: "Create the portion of graph referred to the schema region"
+      parameters:
+        - name: "metadata"
+          in: "body"
+          required: true
+          description: "Portion of graph referred to the schema region"
+          schema:
+            type: "object"
+            properties:
+              object:
+                type: "object"
+                description: "Object for which metadata was extracted"
+              schema:
+                type: "array"
+                description: "Schemas and their properties"
+                items:
+                  properties:
+                    attribute:
+                      type: "array"
+                      description: "Attributes and their properties"
+                      items:
+                        properties:
+                          domain:
+                            type: "object"
+                            description: "Domain and its properties"
+
+      responses:
+        204:
+          description: "Successfully created metadata referred to the schema region"
+
+
+  /metadata/operation:
+    post:
+      operationId: "metadata.operation"
+      tags:
+        - "Metadata"
+      summary: "Create the portion of graph referred to the operation region"
+      description: "Create the portion of graph referred to the operation region"
+      parameters:
+        - name: "metadata"
+          in: "body"
+          required: true
+          description: "Portion of graph referred to the operation region"
+          schema:
+            type: "object"
+            properties:
+              operation:
+                type: "object"
+                description: "Operation and its properties with info of OperationType and Agent"
+                properties:
+                  agent:
+                    type: "string"
+                    description: "Name of the Agent who carried out the Operation"
+                  operation_type:
+                    type: "string"
+                    description: "Name of the OperationType of which Operation is an instance"
+              source:
+                type: "array"
+                description: "Sources and their properties from which Operation reads from"
+              input_object:
+                type: "array"
+                description: "Objects and their properties from which Operation reads from"
+              output_object:
+                type: "array"
+                description: "Objects and their properties to which Operation writes to with info of DataLakeArea, Project and writing type for each item"
+                items:
+                  properties:
+                    writing_type:
+                      type: "string"
+                      description: "writing type label"
+
+      responses:
+        204:
+          description: "Successfully created metadata referred to the operation region"
